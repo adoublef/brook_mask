@@ -34,6 +34,7 @@ packages = [
 [requirements]
 argv = { version = "~> 1.0" }
 envoy = { version = "~> 1.0" }
+filepath = { version = ">= 1.0.0 and < 2.0.0"}
 gleam_erlang = { version = ">= 0.25.0 and < 1.0.0" }
 gleam_http = { version = ">= 3.6.0 and < 4.0.0" }
 gleam_otp = { version = ">= 0.10.0 and < 1.0.0" }
@@ -41,6 +42,6 @@ gleam_stdlib = { version = "0.37.0" }
 gleeunit = { version = "~> 1.0" }
 glint = { version = "1.0.0-rc2" }
 mist = { version = ">= 1.0.0 and < 2.0.0" }
-simplifile = { version = ">= 1.7.0 and < 2.0.0"}
+simplifile = { version = ">= 1.7.0 and < 2.0.0" }
 sqlight = { version = ">= 0.9.0 and < 1.0.0" }
 wisp = { version = ">= 0.14.0 and < 1.0.0" }
