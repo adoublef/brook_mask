@@ -7,7 +7,7 @@ services:
     image: brook-mask
     build:
       context: .
-    command: run --port=8080
+    command: run --port=8080 --dsn=/app/test.db
     networks:
       - intranet
     ports:
