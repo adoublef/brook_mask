@@ -1,0 +1,25 @@
+version: "3"
+
+tasks:
+  default:
+    desc: list all
+    cmds:
+      - task --list-all
+    silent: true
+
+  down:
+    cmds:
+      - docker compose down --volumes
+    silent: true
+
+  up:
+    deps:
+      - down
+    cmds:
+      - docker compose up -d --build --force-recreate
+    silent: true
+
+  logs:
+    cmds:
+      - docker compose logs -f
+    silent: true

@@ -1,0 +1,13 @@
+networks:
+  intranet:
+
+services:
+  gateway:
+    container_name: brook_mask
+    image: brook-mask
+    build:
+      context: .
+    networks:
+      - intranet
+    ports:
+      - 8000:8000
