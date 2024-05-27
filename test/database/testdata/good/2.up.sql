@@ -1,0 +1,1 @@
+insert into test (v) values ('bar');

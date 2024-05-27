@@ -29,3 +29,8 @@ gleam shell # Run an Erlang shell
 - [glint: flag parser](https://github.com/TanklesXL/glint)
 - [gleescript: create single executable files](https://github.com/lpil/gleescript)
 - [snag: nicer error handling](https://github.com/lpil/snag)
+- [argv: getting command line arguments](https://github.com/lpil/argv)
+- [wisp: web framework](https://github.com/gleam-wisp/wisp)
+- [file stream: streaming files](https://hexdocs.pm/file_streams/)
+- [fswalk: walking file system](https://hexdocs.pm/fswalk/)
+- [simplifile: reading file system](https://hexdocs.pm/simplifile/)
