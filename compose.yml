@@ -7,7 +7,8 @@ services:
     image: brook-mask
     build:
       context: .
+    command: run --port=8080
     networks:
       - intranet
     ports:
-      - 8000:8000
+      - 8000:8080

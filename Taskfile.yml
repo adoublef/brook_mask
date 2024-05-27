@@ -7,6 +7,10 @@ tasks:
       - task --list-all
     silent: true
 
+  test:
+    cmds:
+      - gleam test
+
   down:
     cmds:
       - docker compose down --volumes
@@ -15,6 +19,7 @@ tasks:
   up:
     deps:
       - down
+      - test
     cmds:
       - docker compose up -d --build --force-recreate
     silent: true
