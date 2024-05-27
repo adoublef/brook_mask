@@ -1,61 +1,80 @@
-// stdlib imports
+// gleam
+import gleam/erlang/process
 import gleam/io
-import gleam/list
-import gleam/result
-import gleam/string.{uppercase}
-// external dep imports
-import snag
+
+// glint
 import argv
-// glint imports
 import glint
 
-// this function returns the builder for the caps flag
-fn caps_flag() -> glint.Flag(Bool) {
-  // create a new boolean flag with key "caps"
-  // this flag will be called as --caps=true (or simply --caps as glint handles boolean flags in a bit of a special manner) from the command line
-  glint.bool_flag("caps")
-  // set the flag default value to False
-  |> glint.flag_default(False)
-  //  set the flag help text
-  |> glint.flag_help("Capitalize the hello message")
+// wisp
+import mist
+import wisp
+
+// me
+import net/http
+
+fn port_flag() -> glint.Flag(Int) {
+  glint.int_flag("port")
+  |> glint.flag_default(8000)
+  |> glint.flag_help("http listening port")
 }
 
-/// the glint command that will be executed
-///
-fn hello() -> glint.Command(Nil) {
-  // set the help text for the hello command
-  use <- glint.command_help("Prints Hello, <NAME>!")
-  // register the caps flag with the command
-  // the `caps` variable there is a type-safe getter for the flag value
-  use caps <- glint.flag(caps_flag())
-  // start the body of the command
-  // this is what will be executed when the command is called
-  use _, args, flags <- glint.command()
-  // we can assert here because the caps flag has a default
-  // and will therefore always have a value assigned to it
-  let assert Ok(caps) = caps(flags)
-  // this is where the business logic of our command starts
-  let name = case args {
-    [] -> "Joe"
-    [name, ..] -> name
-  }
-  let msg = "Hello, " <> name <> "!"
-  case caps {
-    True -> uppercase(msg)
-    False -> msg
-  }
-  |> io.println
+fn dsn_flag() {
+  glint.string_flag("dsn")
+  |> glint.flag_default("local.db")
+  |> glint.flag_help("database source name")
+}
+
+fn serve() -> glint.Command(Nil) {
+  //  add constraints
+  //  use <- glint.command_help("some helpful text")
+  //  use <- glint.unnamed_args(glint.EqArgs(0))
+  use _, _, flags <- glint.command()
+  let assert Ok(port) = glint.get_flag(flags, port_flag())
+  let assert Ok(dsn) = glint.get_flag(flags, dsn_flag())
+  //  let assert [name, ..rest] = args
+  io.debug(dsn)
+  io.debug(port)
+  // This sets the logger to print INFO level logs, and other sensible defaults
+  // for a web application.
+  wisp.configure_logger()
+
+  // Here we generate a secret key, but in a real application you would want to
+  // load this from somewhere so that it is not regenerated on every restart.
+  // use env_var for this
+  let secret_key_base = wisp.random_string(64)
+
+  // Start the Mist web server.
+  let assert Ok(_) =
+    wisp.mist_handler(http.handle, secret_key_base)
+    |> mist.new
+    |> mist.port(port)
+    |> mist.start_http
+
+  // The web server runs in new Erlang process, so put this one to sleep while
+  // it works concurrently.
+  process.sleep_forever()
+}
+
+fn migrate() -> glint.Command(Nil) {
+  // use <- glint.command_help("some helpful text")
+  // use <- glint.unnamed_args(glint.MinArgs(1))
+  use _, _, flags <- glint.command()
+  let assert Ok(_) = glint.get_flag(flags, dsn_flag())
+  Nil
+}
+
+fn run() {
+  glint.new()
+  |> glint.group_flag([], port_flag())
+  |> glint.group_flag([], dsn_flag())
+  |> glint.add(at: [], do: serve())
+  |> glint.add(at: ["serve"], do: serve())
+  |> glint.add(at: ["migrate"], do: migrate())
 }
 
 pub fn main() {
-  // create a new glint instance
-  glint.new()
-  // with an app name of "hello", this is used when printing help text
-  |> glint.with_name("hello")
-  // with pretty help enabled, using the built-in colours
-  |> glint.with_pretty_help(glint.default_pretty_help())
-  // with a root command that executes the `hello` function
-  |> glint.add(at: [], do: hello)
-  // execute given arguments from stdin
-  |> glint.run(argv.load().arguments)
+  // io.println is the command output
+  // 
+  glint.run_and_handle(run(), argv.load().arguments, io.debug)
 }
