@@ -11,6 +11,7 @@ import mist
 import wisp
 
 // me
+import database/sql
 import net/http
 
 fn port_flag() -> glint.Flag(Int) {
@@ -33,8 +34,7 @@ fn serve() -> glint.Command(Nil) {
   let assert Ok(port) = glint.get_flag(flags, port_flag())
   let assert Ok(dsn) = glint.get_flag(flags, dsn_flag())
   //  let assert [name, ..rest] = args
-  io.debug(dsn)
-  io.debug(port)
+
   // This sets the logger to print INFO level logs, and other sensible defaults
   // for a web application.
   wisp.configure_logger()
@@ -42,11 +42,18 @@ fn serve() -> glint.Command(Nil) {
   // Here we generate a secret key, but in a real application you would want to
   // load this from somewhere so that it is not regenerated on every restart.
   // use env_var for this
+  // using envoy for this
   let secret_key_base = wisp.random_string(64)
+
+  use conn <- sql.with_connection(dsn)
+  let context = http.Context(db: conn)
+
+  let handler = http.handle_request(_, context)
 
   // Start the Mist web server.
   let assert Ok(_) =
-    wisp.mist_handler(http.handle, secret_key_base)
+    handler
+    |> wisp.mist_handler(secret_key_base)
     |> mist.new
     |> mist.port(port)
     |> mist.start_http
