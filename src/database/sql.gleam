@@ -96,14 +96,13 @@ pub fn with_transaction(
   let assert Ok(_) = sqlight.exec("BEGIN TRANSACTION;", on: conn)
   case do() {
     Ok(_) -> {
-      sqlight.exec("COMMIT", on: conn)
+      exec("COMMIT", on: conn)
     }
-    Error(_) -> {
-      io.debug("rolling back")
-      sqlight.exec("ROLLBACK", on: conn)
+    Error(e) -> {
+      use <- try_exec("ROLLBACK", on: conn)
+      Error(e)
     }
   }
-  |> result.map_error(SQLiteError)
 }
 
 /// exec
